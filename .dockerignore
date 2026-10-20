@@ -1,0 +1,13 @@
+.git
+.github
+.env
+**/.env
+**/node_modules
+app/dist
+app/database
+services
+Makefile
+README.md
+docker-compose*.yml
+Dockerfile*
+**/.pnpm-store

@@ -1,0 +1,30 @@
+services:
+  app:
+    image: kicha3007boop/docker-project-74-development
+    # Образ разработки только локальный: из реестра не тянется,
+    # собирается `docker compose build` (make setup) и при отсутствии — на `up`
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/app
+    command: make dev
+
+  caddy:
+    image: caddy:2.10
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./services/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-postgres}
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-password}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: kicha3007boop/docker-project-74
+    # Образ всегда собирается из исходников: `docker compose pull` его не тянет
+    # (на свежем окружении образа в реестре может ещё не быть)
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    environment:
+      DATABASE_HOST: ${DATABASE_HOST:-db}
+      DATABASE_NAME: ${DATABASE_NAME:-postgres}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-password}
+    command: make test
+    # Ждём готовности базы, а не просто запуска контейнера:
+    # миграции применяются прямо на старте приложения
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

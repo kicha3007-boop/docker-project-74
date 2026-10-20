@@ -1,0 +1,7 @@
+.env
+node_modules/
+app/dist/
+app/database/
+.idea/
+.vscode/
+.pnpm-store/
